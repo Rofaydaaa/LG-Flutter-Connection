@@ -1,16 +1,29 @@
-# demo
+# Demo App for Liquid Galaxy
+## Overview
+This Flutter application is designed to interact with a Liquid Galaxy setup, providing simple functionalities for controlling the rig. The app features four buttons and the company logo, each serving specific functions to command the Liquid Galaxy system.
 
-A new Flutter project.
+## Features
+### - Reboot Liquid Galaxy
 
-## Getting Started
+Initiates a reboot sequence for the Liquid Galaxy rig, with a warning prompt for confirmation before execution.
 
-This project is a starting point for a Flutter application.
+### - Move to Home City
 
-A few resources to get you started if this is your first Flutter project:
+Commands the Liquid Galaxy system to fly to the user's specified home city location on the map.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### - Make an Orbit Upon Arrival
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Instructs the Liquid Galaxy setup to perform an orbit maneuver upon reaching the designated home city location.
+
+### - Print HTML Bubble
+
+Generates and displays an HTML bubble on the right screen of a three-screen Liquid Galaxy setup, containing the name of the city and the user's name in large letters.
+
+## Settings
+The settings screen provides options for configuring the app to establish communication with the Liquid Galaxy setup.
+
+## Usage
+- Ensure the Liquid Galaxy rig is properly set up and configured.
+- Launch the application on the connected VMs.
+- Navigate to the settings screen to configure the connection parameters.
+- Utilize the buttons on the main screen to command the Liquid Galaxy system according to the desired functionalities.
