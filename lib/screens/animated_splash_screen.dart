@@ -22,7 +22,7 @@ class SplashAnimated extends StatelessWidget {
           fit: BoxFit.contain,
         ),
       ),
-        nextScreen: const HomeScreen(),
+        nextScreen: HomeScreen(),
         duration: 2000,
         animationDuration: const Duration(seconds: 5));
   }
