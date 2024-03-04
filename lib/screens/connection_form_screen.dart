@@ -1,116 +1,181 @@
 import 'package:flutter/material.dart';
 
 class ConnectFormScreen extends StatelessWidget {
+  var height, width;
+
   @override
   Widget build(BuildContext context) {
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back button pressed
-          },
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        color: Color.fromARGB(255, 8, 56, 123),
+        height: height,
+        width: width,
+        child: Column(
           children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 50,
-              height: 50,
-            ),
-            SizedBox(width: 10),
-            // Applying negative margin to move the text up a little bit
             Container(
-              margin: EdgeInsets.only(bottom: 5),
-              child: Text(
-                'Connection Details',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 42, 63, 125),
+              decoration: BoxDecoration(),
+              height: height * 0.30,
+              width: width,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: 50,
+                      left: 80,
+                      right: 80,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Color.fromARGB(0, 255, 255, 255),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Image.asset(
+                              "assets/images/back.png",
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Offline',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: 10,
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/logo.png',
+                              width: 50,
+                              height: 50,
+                            ),
+                            SizedBox(width: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Text(
+                                "LG Connection",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
+                ),
+              ),
+              height: height * 0.7,
+              width: width,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 50.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            decoration: InputDecoration(labelText: 'Username'),
+                          ),
+                          SizedBox(height: 20),
+                          TextFormField(
+                            decoration: InputDecoration(labelText: 'Password'),
+                          ),
+                          SizedBox(height: 20),
+                          TextFormField(
+                            decoration:
+                                InputDecoration(labelText: 'IP Address'),
+                          ),
+                          SizedBox(height: 20),
+                          TextFormField(
+                            decoration: InputDecoration(labelText: 'Port'),
+                          ),
+                          SizedBox(height: 20),
+                          TextFormField(
+                            decoration:
+                                InputDecoration(labelText: 'Number of Screens'),
+                          ),
+                          SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Handle connect button pressed
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                Color.fromARGB(255, 8, 56, 123),
+                              ),
+                            ),
+                            child: Text(
+                              'Connect',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        actions: [
-          Row(
-            children: [
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Offline',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(width: 100),
-        ],
-      ),
-      body: Column(
-        children: [
-          SizedBox(height: 60),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 200.0),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color.fromARGB(255, 42, 63, 125),
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Username'),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Password'),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'IP Address'),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Port'),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        decoration:
-                            InputDecoration(labelText: 'Number of Screens'),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle connect button pressed
-                        },
-                        child: Text('Connect'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
