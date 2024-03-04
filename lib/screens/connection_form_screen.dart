@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:demo/components/connection_indicator.dart';
 
 class ConnectFormScreen extends StatelessWidget {
   var height, width;
@@ -29,46 +30,27 @@ class ConnectFormScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Color.fromARGB(0, 255, 255, 255),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Image.asset(
-                              "assets/images/back.png",
-                              fit: BoxFit.contain,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Color.fromARGB(0, 255, 255, 255),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                "assets/images/back.png",
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                         ),
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Offline',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
+                        ConnectionIndicator(isOnline: false),
                       ],
                     ),
                   ),
