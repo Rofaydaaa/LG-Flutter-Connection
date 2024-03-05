@@ -1,10 +1,57 @@
+import 'package:flutter/material.dart';
 import 'package:demo/components/connection_indicator.dart';
 import 'package:demo/screens/connection_form_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:demo/screens/lg_services_screen.dart';
+import 'package:dartssh2/dartssh2.dart';
+import 'package:demo/connections/ssh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreen extends StatelessWidget {
-  var height, width;
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late double height;
+  late double width;
+
+  late SSH ssh;
+  bool connectionStatus = false;
+
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  void _startFlyAnimation() {
+    _controller.reset();
+    _controller.forward();
+    ssh.goHome();
+  }
+
+  Future<void> _connectToLG() async {
+    bool? result = await ssh.connectToLG();
+    setState(() {
+      connectionStatus = result!;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ssh = SSH();
+    _connectToLG();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 5),
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        ConnectionIndicator(isOnline: false),
+                        ConnectionIndicator(isOnline: connectionStatus),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -152,31 +199,78 @@ class HomeScreen extends StatelessWidget {
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle button press
+                      if (!connectionStatus) {
+                        // Display error message
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor:
+                                Color.fromARGB(255, 220, 97, 63),
+                            title: Text(
+                              'Connection Error',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            content: Text(
+                              'You are not connected to LG. Please connect first.',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+                      _startFlyAnimation();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
                           Color.fromARGB(75, 47, 59, 122)),
                       elevation: MaterialStateProperty.all<double>(0),
                     ),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/flight.png',
-                          width: 100,
-                          height: 100,
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Let\'s go!',
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 59, 58, 58),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic,
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        return Transform.rotate(
+                          angle: _controller.value * 2 * 3.141,
+                          child: child,
+                        );
+                      },
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/flight.png',
+                            width: 100,
+                            height: 100,
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 10),
+                          Text(
+                            'Let\'s go!',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 59, 58, 58),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -186,5 +280,11 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

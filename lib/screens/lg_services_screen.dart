@@ -1,7 +1,18 @@
 import 'package:demo/components/connection_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:dartssh2/dartssh2.dart';
+import 'package:demo/connections/ssh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'dart:isolate';
 
-class LGServices extends StatelessWidget {
+class LGServices extends StatefulWidget {
+  const LGServices({Key? key}) : super(key: key);
+  @override
+  State<LGServices> createState() => _LGServicesState();
+}
+
+class _LGServicesState extends State<LGServices> {
   var height, width;
 
   List imgData = [
@@ -11,7 +22,7 @@ class LGServices extends StatelessWidget {
     },
     {
       "img": "assets/images/relunch.png",
-      "title": "Relunch",
+      "title": "Relaunch LG",
     },
     {
       "img": "assets/images/reboot.png",
@@ -22,6 +33,138 @@ class LGServices extends StatelessWidget {
       "title": "Clear KML",
     },
   ];
+
+  late SSH ssh;
+  bool connectionStatus = false;
+
+  void handleItemClick(int index) {
+    if (!connectionStatus) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 220, 97, 63),
+          title: Text(
+            'Connection Error',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'You are not connected to LG. Please connect first.',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 248, 125),
+        title: Text(
+          'Confirmation',
+          style: TextStyle(
+            color: Color.fromARGB(255, 27, 27, 27),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to ${imgData[index]["title"].toLowerCase()}?',
+          style: TextStyle(
+            color: Color.fromARGB(255, 27, 27, 27),
+            fontSize: 20,
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await executeAction(index);
+            },
+            child: Text(
+              'Confirm',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> executeAction(int index) async {
+    switch (index) {
+      case 0:
+        await ssh.shutdown();
+        break;
+      case 1:
+        await ssh.relaunchLG();
+        break;
+      case 2:
+        await ssh.reboot();
+        break;
+      case 3:
+        print("Clear KML function executed");
+        break;
+      default:
+        print("Unknown function");
+    }
+  }
+
+  Future<void> rebootInIsolate() async {
+    final receivePort = ReceivePort();
+    await Isolate.spawn(_rebootFunction, receivePort.sendPort);
+  }
+
+  void _rebootFunction(SendPort sendPort) {
+    ssh.reboot();
+  }
+
+  Future<void> _connectToLG() async {
+    bool? result = await ssh.connectToLG();
+    setState(() {
+      connectionStatus = result!;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ssh = SSH();
+    _connectToLG();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +212,7 @@ class LGServices extends StatelessWidget {
                             ),
                           ),
                         ),
-                        ConnectionIndicator(isOnline: false),
+                        ConnectionIndicator(isOnline: connectionStatus),
                       ],
                     ),
                   ),
@@ -120,8 +263,7 @@ class LGServices extends StatelessWidget {
               height: height * 0.7,
               width: width,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 300), // Adjust the horizontal padding here
+                padding: EdgeInsets.symmetric(horizontal: 300),
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -134,7 +276,7 @@ class LGServices extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        print("Tapped");
+                        handleItemClick(index);
                       },
                       child: Container(
                           margin:
