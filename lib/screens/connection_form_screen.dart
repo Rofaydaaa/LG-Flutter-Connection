@@ -14,7 +14,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
   late double height;
   late double width;
 
-  late bool connectionStatus;
+  bool connectionStatus = false;
 
   final TextEditingController _ipController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -29,8 +29,70 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
     setState(() {
       connectionStatus = result!;
     });
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('connectionStatus', connectionStatus);
+  }
+
+  Future<void> _connectToLGDialogue() async {
+    bool? result = await ssh.connectToLG();
+    await _saveSettings(result!);
+    setState(() {
+      connectionStatus = result;
+    });
+    if (result == true) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 104, 200, 108),
+          title: Text('Success',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              )),
+          content: Text('Successfully connected to LG.',
+              style: TextStyle(
+                color: Colors.white,
+              )),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ))),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 220, 97, 63),
+          title: Text('Connection Failed',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              )),
+          content: Text(
+              'Failed to connect to LG. Please check your settings and try again.',
+              style: TextStyle(
+                color: Colors.white,
+              )),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ))),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -39,6 +101,12 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
     ssh = SSH();
     _loadSettings();
     _connectToLG();
+    //clearPreferences();
+  }
+
+  Future<void> clearPreferences() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 
   @override
@@ -59,11 +127,10 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
       _passwordController.text = prefs.getString('password') ?? '';
       _sshPortController.text = prefs.getString('sshPort') ?? '';
       _rigsController.text = prefs.getString('numberOfRigs') ?? '';
-      connectionStatus = prefs.getBool('connectionStatus') ?? false;
     });
   }
 
-  Future<void> _saveSettings() async {
+  Future<void> _saveSettings(bool result) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (_ipController.text.isNotEmpty) {
@@ -112,7 +179,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context, connectionStatus);
                           },
                           child: Container(
                             height: 100,
@@ -130,7 +197,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                             ),
                           ),
                         ),
-                        ConnectionIndicator(isOnline: false),
+                        ConnectionIndicator(isOnline: connectionStatus),
                       ],
                     ),
                   ),
@@ -198,6 +265,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                           TextFormField(
                             controller: _passwordController,
                             decoration: InputDecoration(labelText: 'Password'),
+                            obscureText: true,
                           ),
                           SizedBox(height: 20),
                           TextFormField(
@@ -218,67 +286,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                           ),
                           SizedBox(height: 20),
                           ElevatedButton(
-                            onPressed: () async {
-                              await _saveSettings();
-                              bool? result = await ssh.connectToLG();
-                              if (result == true) {
-                                setState(() {
-                                  connectionStatus = true;
-                                });
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      Navigator.of(context).pop(
-                                          true);
-                                    });
-                                    return AlertDialog(
-                                      backgroundColor:
-                                          Color.fromARGB(255, 104, 200, 108),
-                                      title: Text('Success',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                      content:
-                                          Text('Successfully connected to LG.',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              )),
-                                    );
-                                  },
-                                );
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor:
-                                        Color.fromARGB(255, 220, 97, 63),
-                                    title: Text('Connection Failed',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        )),
-                                    content: Text(
-                                        'Failed to connect to LG. Please check your settings and try again.',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        )),
-                                    actions: <Widget>[
-                                      TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ))),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
+                            onPressed: _connectToLGDialogue,
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all(
                                 Color.fromARGB(255, 8, 56, 123),
@@ -286,79 +294,6 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                             ),
                             child: Text(
                               'Connect',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () async {
-                              await ssh.connectToLG();
-                              SSHSession? result = await ssh.execute();
-                              if (result != null) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      Navigator.of(context).pop(
-                                          true);
-                                    });
-                                    return AlertDialog(
-                                      backgroundColor:
-                                          Color.fromARGB(255, 104, 200, 108),
-                                      title: Text('Success',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                      content: Text(
-                                          'Command sent to LG successfully.',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          )),
-                                    );
-                                  },
-                                );
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor:
-                                        Color.fromARGB(255, 220, 97, 63),
-                                    title: Text('Sending Command to LG Failed',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        )),
-                                    content: Text(
-                                        'Failed to connect to LG. Please check your settings and try again.',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        )),
-                                    actions: <Widget>[
-                                      TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ))),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Color.fromARGB(255, 8, 56, 123),
-                              ),
-                            ),
-                            child: Text(
-                              'Send command to LG',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
