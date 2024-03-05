@@ -136,7 +136,7 @@ class _LGServicesState extends State<LGServices> {
         await ssh.reboot();
         break;
       case 3:
-        print("Clear KML function executed");
+        await ssh.clearKML();
         break;
       default:
         print("Unknown function");

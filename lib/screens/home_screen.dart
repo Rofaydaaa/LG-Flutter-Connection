@@ -109,8 +109,13 @@ class _HomeScreenState extends State<HomeScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ConnectFormScreen()),
-                            );
+                                builder: (context) => ConnectFormScreen(),
+                              ),
+                            ).then((result) {
+                              setState(() {
+                                connectionStatus = result ?? false;
+                              });
+                            });
                           },
                           child: Container(
                             height: 100,

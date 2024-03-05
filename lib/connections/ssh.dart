@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
 
 class SSH {
-  late String _host;  // _host is the ip address
+  late String _host; // _host is the ip address
   late String _port;
   late String _username;
   late String _passwordOrKey;
@@ -58,13 +58,14 @@ class SSH {
   }
 
   Future<void> shutdown() async {
-
-    final shutdown_command = 'sshpass -p $_passwordOrKey ssh -t lg$_username "echo $_passwordOrKey | sudo -S poweroff"';
-    await execute(shutdown_command, 'Liquid Galaxy shutdown successfully');
+    for (int i = 1; i <= int.parse(_numberOfRigs); i++) {
+      final shutdown_command =
+          'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S shutdown now"';
+      await execute(shutdown_command, 'Liquid Galaxy $i shutdown successfully');
+    }
   }
 
   Future<SSHSession?> relaunchLG() async {
-
     final relaunch_cmd = """
         RELAUNCH_CMD="\\
         if [ -f /etc/init/lxdm.conf ]; then
@@ -82,29 +83,55 @@ class SSH {
         fi
         " && sshpass -p $_passwordOrKey ssh -x -t lg@lg1 "\$RELAUNCH_CMD\"""";
 
-    return await execute(relaunch_cmd, 'Liquid Galaxy relaunched successfully');   
+    return await execute(relaunch_cmd, 'Liquid Galaxy relaunched successfully');
   }
 
   Future<void> reboot() async {
-      final reboot_1 = 'sshpass -p $_passwordOrKey ssh -t lg1 "echo $_passwordOrKey | sudo -S reboot"';
-      final reboot_2 = 'sshpass -p $_passwordOrKey ssh -t lg2 "echo $_passwordOrKey | sudo -S reboot"';
-      final reboot_3 = 'sshpass -p $_passwordOrKey ssh -t lg3 "echo $_passwordOrKey | sudo -S reboot"';
-
-      await execute(reboot_1, 'Liquid Galaxy 1 rebooted successfully');
-      await execute(reboot_2, 'Liquid Galaxy 2 rebooted successfully');
-      await execute(reboot_3, 'Liquid Galaxy 3 rebooted successfully');
+    for (int i = 1; i <= int.parse(_numberOfRigs); i++) {
+      final reboot_command =
+          'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S reboot"';
+      await execute(reboot_command, 'Liquid Galaxy $i rebooted successfully');
+    }
   }
 
   Future<SSHSession?> goHome() async {
     final gohome_command = 'echo "search=Cairo" > /tmp/query.txt';
-    return await execute(gohome_command, 'Liquid Galaxy went home successfully');
-  } 
-
-  Future<SSHSession?> Orbithome() async {
-  
-    final orbit_command = 'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
-    return await execute(orbit_command, 'Liquid Galaxy orbit home successfully');
-
+    return await execute(
+        gohome_command, 'Liquid Galaxy went home successfully');
   }
 
+  Future<SSHSession?> Orbithome() async {
+    final orbit_command =
+        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
+    return await execute(
+        orbit_command, 'Liquid Galaxy orbit home successfully');
+  }
+
+  Future<SSHSession?> sendKML() async {
+
+    // Add the ballon html
+    final KML = '''
+      <kml xmlns="http://www.opengis.net/kml/2.2"
+           xmlns:gx="http://www.google.com/kml/ext/2.2"
+           xmlns:atom="http://www.w3.org/2005/Atom">
+        <Document>
+          <Folder>
+            
+          </Folder>
+        </Document>
+      </kml>
+    ''';
+    final kml_command = 'echo "$KML" > /var/www/html/kml/slave_2.kml';
+    return await execute(
+        kml_command, 'Liquid Galaxy set KML successfully');
+  }
+
+  Future<SSHSession?> clearKML() async {
+    final slave2_command = 'echo "" > /var/www/html/kml/slave_2.kml';
+    await execute(
+        slave2_command, 'Liquid Galaxy cleared KML from slave2 successfully');
+    final slave3_command = 'echo "" > /var/www/html/kml/slave_3.kml';
+    return await execute(
+        slave3_command, 'Liquid Galaxy cleared KML from slave 3 successfully');
+  }
 }
