@@ -26,16 +26,18 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
 
   Future<void> _connectToLG() async {
     bool? result = await ssh.connectToLG();
-    setState(() {
-      connectionStatus = result!;
-    });
+    if (mounted) {
+      setState(() {
+        connectionStatus = result!;
+      });
+    }
   }
 
   Future<void> _connectToLGDialogue() async {
+    await _saveSettings();
     bool? result = await ssh.connectToLG();
-    await _saveSettings(result!);
     setState(() {
-      connectionStatus = result;
+      connectionStatus = result!;
     });
     if (result == true) {
       showDialog(
@@ -130,7 +132,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
     });
   }
 
-  Future<void> _saveSettings(bool result) async {
+  Future<void> _saveSettings() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (_ipController.text.isNotEmpty) {
