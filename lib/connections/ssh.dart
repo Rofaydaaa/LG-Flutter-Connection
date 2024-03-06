@@ -102,28 +102,46 @@ class SSH {
 
   Future<SSHSession?> Orbithome() async {
     final orbit_command =
-        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
+        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>10000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
     return await execute(
         orbit_command, 'Liquid Galaxy orbit home successfully');
   }
 
   Future<SSHSession?> sendKML() async {
-
     // Add the ballon html
-    final KML = '''
-      <kml xmlns="http://www.opengis.net/kml/2.2"
-           xmlns:gx="http://www.google.com/kml/ext/2.2"
-           xmlns:atom="http://www.w3.org/2005/Atom">
-        <Document>
-          <Folder>
-            
-          </Folder>
-        </Document>
-      </kml>
+    final KML2 = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>VolTrac</name>
+	<open>1</open>
+	<description>The logo it located in the bottom left hand corner</description>
+	<Folder>
+		<name>tags</name>
+		<Style>
+			<ListStyle>
+				<listItemType>checkHideChildren</listItemType>
+				<bgColor>00ffffff</bgColor>
+				<maxSnippetLines>2</maxSnippetLines>
+			</ListStyle>
+		</Style>
+		<ScreenOverlay id="abc">
+			<name>VolTrac</name>
+			<Icon>
+				<href>https://raw.githubusercontent.com/Rofaydaaa/LG-Flutter-Connection/master/assets/images/ballon.png</href>
+			</Icon>
+			<overlayXY x="0.9" y="1" xunits="fraction" yunits="fraction"/>
+			<screenXY x="0.9" y="0.7" xunits="fraction" yunits="fraction"/>
+			<rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
+			<size x="0" y="0" xunits="pixels" yunits="fraction"/>
+		</ScreenOverlay>
+	</Folder>
+</Document>
+</kml>
     ''';
-    final kml_command = 'echo "$KML" > /var/www/html/kml/slave_2.kml';
-    return await execute(
-        kml_command, 'Liquid Galaxy set KML successfully');
+    final kml_command2 = "echo '$KML2' > /var/www/html/kml/slave_2.kml";
+    return execute(
+        kml_command2, 'Liquid Galaxy set KML successfully');
   }
 
   Future<SSHSession?> clearKML() async {

@@ -28,13 +28,20 @@ class _HomeScreenState extends State<HomeScreen>
     _controller.reset();
     _controller.forward();
     ssh.goHome();
+    ssh.Orbithome();
+    ssh.sendKML();
   }
 
   Future<void> _connectToLG() async {
     bool? result = await ssh.connectToLG();
     setState(() {
       connectionStatus = result!;
+      _sendKml();
     });
+  }
+
+  Future<void> _sendKml() async {
+    await ssh.sendKML();
   }
 
   @override
@@ -42,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     ssh = SSH();
     _connectToLG();
-
     _controller = AnimationController(
       vsync: this,
       duration: Duration(seconds: 5),
