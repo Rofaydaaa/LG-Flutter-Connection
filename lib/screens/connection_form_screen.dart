@@ -166,7 +166,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
           children: [
             Container(
               decoration: BoxDecoration(),
-              height: height * 0.30,
+              height: height * 0.40,
               width: width,
               child: Column(
                 children: [
@@ -247,7 +247,7 @@ class _ConnectFormScreenState extends State<ConnectFormScreen> {
                   topRight: Radius.circular(50),
                 ),
               ),
-              height: height * 0.7,
+              height: height * 0.6,
               width: width,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 50.0),
