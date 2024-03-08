@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:demo/connections/ssh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:demo/screens/connection_form_screen.dart';
 import 'dart:async';
 import 'dart:isolate';
 
@@ -17,7 +18,7 @@ class _LGServicesState extends State<LGServices> {
 
   List imgData = [
     {
-      "img": "assets/images/shutdown.png",
+      "img": "assets/images/satellite.png",
       "title": "Start Orbit",
     },
     {
@@ -214,6 +215,35 @@ class _LGServicesState extends State<LGServices> {
                           ),
                         ),
                         ConnectionIndicator(isOnline: connectionStatus),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ConnectFormScreen(),
+                              ),
+                            ).then((result) {
+                              setState(() {
+                                connectionStatus = result ?? false;
+                              });
+                            });
+                          },
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Color.fromARGB(29, 255, 255, 255),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset(
+                                "assets/images/link.png",
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
