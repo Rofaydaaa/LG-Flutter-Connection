@@ -38,7 +38,7 @@ class _LGServicesState extends State<LGServices> {
   late SSH ssh;
   bool connectionStatus = false;
 
-  void handleItemClick(int index) async{
+  void handleItemClick(int index) async {
     if (!connectionStatus) {
       showDialog(
         context: context,
@@ -78,55 +78,54 @@ class _LGServicesState extends State<LGServices> {
 
     if ((index == 0) || index == 1) {
       await executeAction(index);
-    }
-    else {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Color.fromARGB(255, 255, 248, 125),
-        title: Text(
-          'Confirmation',
-          style: TextStyle(
-            color: Color.fromARGB(255, 27, 27, 27),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to ${imgData[index]["title"].toLowerCase()}?',
-          style: TextStyle(
-            color: Color.fromARGB(255, 27, 27, 27),
-            fontSize: 20,
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color.fromARGB(255, 255, 248, 125),
+          title: Text(
+            'Confirmation',
+            style: TextStyle(
+              color: Color.fromARGB(255, 27, 27, 27),
+              fontWeight: FontWeight.bold,
             ),
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await executeAction(index);
-            },
-            child: Text(
-              'Confirm',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+          content: Text(
+            'Are you sure you want to ${imgData[index]["title"].toLowerCase()}?',
+            style: TextStyle(
+              color: Color.fromARGB(255, 27, 27, 27),
+              fontSize: 20,
             ),
           ),
-        ],
-      ),
-    );
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await executeAction(index);
+              },
+              child: Text(
+                'Confirm',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
   }
 
