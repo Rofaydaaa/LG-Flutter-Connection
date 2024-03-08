@@ -108,8 +108,6 @@ class SSH {
         'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
     await execute(
         orbit_command2, 'Liquid Galaxy orbit home successfully');
-    return await execute(
-        orbit_command, 'Liquid Galaxy orbit home successfully');
   }
 
   Future<SSHSession?> sendKML() async {
