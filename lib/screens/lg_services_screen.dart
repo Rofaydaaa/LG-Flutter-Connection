@@ -22,8 +22,8 @@ class _LGServicesState extends State<LGServices> {
       "title": "Start Orbit",
     },
     {
-      "img": "assets/images/relunch.png",
-      "title": "Relaunch LG",
+      "img": "assets/images/flight.png",
+      "title": "Fly Home",
     },
     {
       "img": "assets/images/reboot.png",
@@ -38,7 +38,7 @@ class _LGServicesState extends State<LGServices> {
   late SSH ssh;
   bool connectionStatus = false;
 
-  void handleItemClick(int index) {
+  void handleItemClick(int index) async{
     if (!connectionStatus) {
       showDialog(
         context: context,
@@ -76,6 +76,10 @@ class _LGServicesState extends State<LGServices> {
       return;
     }
 
+    if ((index == 0) || index == 1) {
+      await executeAction(index);
+    }
+    else {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -123,6 +127,7 @@ class _LGServicesState extends State<LGServices> {
         ],
       ),
     );
+    }
   }
 
   Future<void> executeAction(int index) async {
@@ -132,7 +137,7 @@ class _LGServicesState extends State<LGServices> {
         await ssh.Orbithome();
         break;
       case 1:
-        await ssh.relaunchLG();
+        await ssh.goHome();
         break;
       case 2:
         await ssh.reboot();
