@@ -24,11 +24,19 @@ class _HomeScreenState extends State<HomeScreen>
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  void _startFlyAnimation() {
+  void _startFlyAnimation() async{
     _controller.reset();
     _controller.forward();
-    ssh.goHome();
-    ssh.Orbithome();
+    final orbit =
+                      OrbitModel.buildOrbit(OrbitModel.tag());
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LGServices()),
+                      );
+    await ssh.goHome();
+    print('orbit');
+    //await ssh.sendTour(orbit, 'Orbit');
     ssh.sendKML();
   }
 

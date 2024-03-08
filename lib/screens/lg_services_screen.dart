@@ -18,7 +18,7 @@ class _LGServicesState extends State<LGServices> {
   List imgData = [
     {
       "img": "assets/images/shutdown.png",
-      "title": "Shut Down",
+      "title": "Start Orbit",
     },
     {
       "img": "assets/images/relunch.png",
@@ -127,7 +127,8 @@ class _LGServicesState extends State<LGServices> {
   Future<void> executeAction(int index) async {
     switch (index) {
       case 0:
-        await ssh.shutdown();
+        //await ssh.startTour('Orbit');
+        await ssh.Orbithome();
         break;
       case 1:
         await ssh.relaunchLG();

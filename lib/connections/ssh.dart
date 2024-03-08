@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
 
@@ -102,9 +102,12 @@ class SSH {
 
   Future<SSHSession?> Orbithome() async {
     final orbit_command =
-        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>10000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
+        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>0</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
+    await execute(orbit_command, 'Liquid Galaxy orbit home successfully');
+    final orbit_command2 =
+        'echo "flytoview=<gx:duration>1</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>31.20665</longitude><latitude>30.063806</latitude><range>5000</range><tilt>60</tilt><heading>180</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>" > /tmp/query.txt';
     return await execute(
-        orbit_command, 'Liquid Galaxy orbit home successfully');
+        orbit_command2, 'Liquid Galaxy orbit home successfully');
   }
 
   Future<SSHSession?> sendKML() async {
@@ -140,8 +143,7 @@ class SSH {
 </kml>
     ''';
     final kml_command2 = "echo '$KML2' > /var/www/html/kml/slave_2.kml";
-    return execute(
-        kml_command2, 'Liquid Galaxy set KML successfully');
+    return execute(kml_command2, 'Liquid Galaxy set KML successfully');
   }
 
   Future<SSHSession?> clearKML() async {
@@ -152,4 +154,119 @@ class SSH {
     return await execute(
         slave3_command, 'Liquid Galaxy cleared KML from slave 3 successfully');
   }
+
+  uploadKml(File inputFile, String filename) async {
+    final sftp = await _client?.sftp();
+    double anyKindofProgressBar;
+    print("sftp created");
+    final file = await sftp?.open('/var/www/html/$filename',
+        mode: SftpFileOpenMode.create |
+            SftpFileOpenMode.truncate |
+            SftpFileOpenMode.write);
+    var fileSize = await inputFile.length();
+    await file?.write(inputFile.openRead().cast(), onProgress: (progress) {
+      anyKindofProgressBar = progress / fileSize;
+    });
+  }
+
+  Future<void> sendTour(String tourKml, String tourName) async {
+    final String _url = 'http://lg1:81';
+    final fileName = '$tourName.kml';
+    try {
+      final kmlFile = await createFile(fileName, tourKml);
+      print('kml created');
+      await uploadKml(kmlFile, fileName);
+      print('kml uploaded');
+
+      await execute('echo "\n$_url/$fileName" >> /var/www/html/kmls.txt',
+          'Tour added successfully');
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+    }
+  }
+
+  Future<void> query(String content) async {
+    await execute(
+        'echo "$content" > /tmp/query.txt', 'Query sent successfully');
+  }
+
+  Future<void> startTour(String tourName) async {
+    try {
+      print('here play tour');
+      await query('playtour=$tourName');
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
+
+  /// Uses the [query] method to stop all tours in Google Earth.
+  Future<void> stopTour() async {
+    try {
+      await query('exittour=true');
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
+}
+
+class OrbitModel {
+  /// Generates the orbit tag based on the given [lookAt].
+  static String tag() {
+    String content = '';
+
+    double heading = 0;
+    int orbit = 0;
+
+    while (orbit <= 36) {
+      if (heading >= 360) {
+        heading -= 360;
+      }
+
+      content += '''
+            <gx:FlyTo>
+              <gx:duration>1.2</gx:duration>
+              <gx:flyToMode>smooth</gx:flyToMode>
+              <LookAt>
+                  <longitude>31.20665</longitude>
+                  <latitude>30.063806</latitude>
+                  <heading></heading>
+                  <tilt>60</tilt>
+                  <range>10000</range>
+                  <gx:fovy>60</gx:fovy>
+                  <altitude>50000.1097385</altitude>
+                  <gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+              </LookAt>
+            </gx:FlyTo>
+          ''';
+
+      heading += 10;
+      orbit += 1;
+    }
+
+    return content;
+  }
+
+  /// Builds and returns the orbit KML based on the given [content].
+  static String buildOrbit(String content) => '''
+<?xml version="1.0" encoding="UTF-8"?>
+      <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+        <gx:Tour>
+          <name>Orbit</name>
+          <gx:Playlist> 
+            $content
+          </gx:Playlist>
+        </gx:Tour>
+      </kml>
+    ''';
+}
+
+Future<File> createFile(String name, String content) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/$name');
+  file.writeAsStringSync(content);
+
+  return file;
 }
