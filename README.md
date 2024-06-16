@@ -1,5 +1,4 @@
-# roufy_demo
-
+# Demo App for Liquid Galaxy
 A new Flutter project.
 
 ## Getting Started
